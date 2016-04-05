@@ -1,19 +1,61 @@
-/* global addResizeListener, alert */
-(function (global) {
-  var TermCtrl = function ($scope, $document, $sce, $terminalOptions, $terminalErrors, $timeout) {
-    var angular = TermCtrl.angular,
-      require = TermCtrl.require,
-      terminalContainer = $terminalOptions.getTerminalContainer(),
-      getResourceUrl = TermCtrl.getResourceUrl($scope);
+(function () {
+  var TermCtrl = function ($scope, $commandBroker, $rootScope, $terminalOptions) {
 
-    $scope.options = $terminalOptions;
-    $scope.terminalContainer = terminalContainer;
+    $rootScope.theme = 'vintage';
 
-    $scope.baseUrl = require.toUrl("");
 
-    function broadcast(event) {
-        $scope.$broadcast("term_" + event);
-    }
+    $scope.session = {
+        commands: [],
+        output: [],
+        $scope:$scope
+    };
+
+
+
+
+    $scope.$watchCollection(function () { return $scope.session.commands; }, function (n) {
+        for (var i = 0; i < n.length; i++) {
+            $scope.$broadcast('terminal-command', n[i]);
+        }
+        $scope.session.commands.splice(0, $scope.session.commands.length);
+        $scope.safeApply();
+    });
+
+    $scope.$watchCollection(function () { return $scope.session.output; }, function (n) {
+        for (var i = 0; i < n.length; i++) {
+            $scope.$broadcast('terminal-output', n[i]);
+        }
+        $scope.session.output.splice(0, $scope.session.output.length);
+        $scope.safeApply();
+    });
+
+
+
+    /**
+    * Watch for inputs
+    */
+    $scope.$on('terminal-input', function (e, consoleInput) {
+        var cmd = consoleInput[0];
+
+        try {
+            if ($scope.session.context) {
+                $scope.session.context.execute($scope.session, cmd.command);
+            }
+            else {
+                $commandBroker.execute($scope.session, cmd.command);
+            }
+        } catch (err) {
+            $scope.session.output.push({ output: true, breakLine: true, text: [err.message] });
+        }
+    });
+
+
+
+
+
+
+
+
 
     var self = {
 
@@ -27,14 +69,10 @@
     return self;
   };
 
-  define([
-    "angular"
-  ], function (angular) {
+  define([], function () {
 
-    TermCtrl.require = global.require;
-    TermCtrl.angular = angular;
     TermCtrl.NAME = "TermCtrl";
-    TermCtrl.$inject = ["$scope", "$document", "$sce", "$terminalOptions", "$terminalErrors", "$timeout"];
+    TermCtrl.$inject = ['$scope','$commandBroker','$rootScope', '$terminalOptions'];
     return TermCtrl;
   });
-}(window));
+}());

@@ -155,11 +155,13 @@
     }
 
 
+    Terminal.Providers(module);
     Terminal.Values(module);
     Terminal.Services(module);
     Terminal.Filters(module);
     Terminal.Controllers(module);
     Terminal.Directives(module);
+    Terminal.TerminalCommands(module);
 
     var element = Terminal.document.querySelector(options.getTerminalElementSelector());
     var target = angular.element(element);
@@ -180,28 +182,35 @@
       "./src/template_renderer",
       "./src/controllers",
       "./src/directives",
+      "./src/providers",
       "./src/services",
       "./src/values",
-      "./src/filters"
+      "./src/filters",
+      "./src/terminal_commands"
     ],
 
     function (angular,
               TemplateRenderer,
               Controllers,
               Directives,
+              Providers,
               Services,
               Values,
-              Filters) {
+              Filters,
+              TerminalCommands) {
       Terminal.MODULE = "terminal";
+      Terminal.MODULE_DEPENDENCIES = [];
 
       Terminal.document = global.document;
       Terminal.angular = angular;
       Terminal.TemplateRenderer = TemplateRenderer;
       Terminal.Controllers = Controllers;
       Terminal.Directives = Directives;
+      Terminal.Providers = Providers;
       Terminal.Services = Services;
       Terminal.Values = Values;
       Terminal.Filters = Filters;
+      Terminal.TerminalCommands = TerminalCommands;
       return Terminal;
     }
   );

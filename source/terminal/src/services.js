@@ -1,39 +1,24 @@
-(function () {
-  function defaultErrorCallback(message) {
-    throw new Error(message);
-  }
-
-
+(function (global) {
   var Services = function (module) {
-    var angular = Services.angular;
-
-    module.factory("$cbtErrors", ["$cbtOptions", function ($cbtOptions) {
-      var onErrorCallback = $cbtOptions.getOnErrorCallback();
-      onErrorCallback = (angular.isFunction(onErrorCallback)) ? onErrorCallback : defaultErrorCallback;
-
-      function errorCallback(code, msg) {
-        var info = "[Error " + code + "] " + msg;
-        onErrorCallback(info, code);
-      }
-
-      var self = {
-
-        videoError: function (error) {
-          var msg = error;
-          if (!angular.isString(error)) {
-            msg = error.toString();
-          }
-
-          errorCallback(11, "Video Error: " + msg);
-        }
-      };
-
-      return self;
-    }]);
+    global.angular.forEach(Services.list, function (service) {
+      module.factory(service['NAME'], service);
+    });
   };
 
-  define(["angular"], function (angular) {
-    Services.angular = angular;
+  define([
+//    "angular",
+//    "./services/command-line-splitter",
+//    "./services/command-broker",
+    "./services/prompt-creator",
+    "./services/terminal-configuration",
+  ], function (
+//    angular,
+//    CommandLineSplitter,
+    //CommandBroker, 
+    PromptCreator,
+    TerminalConfiguration) {
+//    Services.angular = angular;
+    Services.list = arguments;
     return Services;
   });
-}());
+}(window));

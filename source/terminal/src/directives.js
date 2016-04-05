@@ -6,9 +6,9 @@
   };
 
   define([
-    "./directives/scrubber-tooltip"
+    "./directives/terminal-output"
   ], function (
-    ScrubberTooltip
+    TerminalOutput
     ) {
     Directives.list = arguments;
     return Directives;

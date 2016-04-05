@@ -1,10 +1,11 @@
 (function () {
   define([], function () {
     var template = "" +
-      "<div class='terminal' ng-controller='TermCtrl' ng-mouseenter='onMouseEnter()'" +
-      " ng-mouseleave='onMouseLeave()'" +
-      " ng-click='terminalClick($event)'>" +
-      "</div>";
+		"<div class='terminal-container' ng-controller='TermCtrl' ng-mouseenter='onMouseEnter()'" +
+		" ng-mouseleave='onMouseLeave()'" +
+		" ng-click='terminalClick($event)'>" +
+			"<terminal-output></terminal-output>" +
+		"</div>";
     return template;
   });
 }());
