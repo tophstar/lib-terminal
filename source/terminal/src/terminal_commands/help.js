@@ -12,7 +12,7 @@ define([], function () {
 			HelpCommandHandler.handle = function (session, cmd) {
 				var list = $commandBrokerProvider.describe();
 				var outText = [];
-				if (cmd) {
+				if (cmd !== HelpCommandHandler.command) {
 					for (var i = 0; i < list.length; i++) {
 						if (list[i].command === cmd) {
 							var l = list[i];

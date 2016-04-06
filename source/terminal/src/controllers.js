@@ -6,13 +6,10 @@
   };
 
   define([
-//    "angular", 
     "./controllers/term_ctrl"],
     function (
-      //angular, 
       TermCtrl) {
     Controllers.TermCtrl = TermCtrl;
-//    Controllers.angular = angular;
     return Controllers;
   });
 }(window));
