@@ -91,24 +91,19 @@
 
 
 
-//@TODO Right here handle a command that was stacked
-if(me.childHandlersStack.length) {
-    
-    suitableHandlers = me.childHandlersStack.pop();
-}
-
-
-
-
-
-else{
-                            //@todo fix this to not use jslint ignore.
-                            /*jshint ignore:start*/
-                            suitableHandlers = me.handlers.filter(function (item) {
-                                return p.length && item.command.toLowerCase() === p[0].toLowerCase();
-                            });
-                            /*jshint ignore:end*/
-}
+                            //@TODO Right here handle a command that was stacked
+                            if(me.childHandlersStack.length) {
+                                
+                                suitableHandlers = me.childHandlersStack.pop();
+                            }
+                            else{
+                                //@todo fix this to not use jslint ignore.
+                                /*jshint ignore:start*/
+                                suitableHandlers = me.handlers.filter(function (item) {
+                                    return p.length && item.command.toLowerCase() === p[0].toLowerCase();
+                                });
+                                /*jshint ignore:end*/
+                            }
 
                             if (suitableHandlers.length === 0){
                                 throw new Error("There is no suitable handler for that command.");
@@ -135,7 +130,10 @@ else{
                             //@todo fix this to not use jslint ignore.
                             /*jshint ignore:start*/
                             var temp = me.childHandlers.filter(function (item) {
-                                return p.length && item.parentCommand.toLowerCase() === tempCmd.toLowerCase();
+                                return p.length 
+                                    && item.parentCommand.filter(function (cm) {
+                                        return cm.toLowerCase() === p[1].toLowerCase();
+                                    }).length > 0;
                             });
                             /*jshint ignore:end*/
 
@@ -152,8 +150,8 @@ else{
                                 childCommand.then(function (data) {
                                     console.log("got here after everything");
                                     
-                                    temp = temp.filter(function (item) {
-                                        return tempCmd.toLowerCase() === childCommand;
+                                    temp = me.childHandlers.filter(function (item) {
+                                        return item.command.toLowerCase() === data.toLowerCase();
                                     });
 
                                     if(temp.length){
@@ -168,7 +166,7 @@ else{
                                 if(temp.length){
                                     me.childHandlersStack.push(temp);
                                 }
-                                
+
                                 angular.extend(session, tempSession);
                             }
                             /*jshint ignore:end*/

@@ -78,13 +78,14 @@ module.exports = function (grunt) {
   grunt.registerTask("setup_build", function () {
     if (!grunt.file.exists("./build")) {
       grunt.file.mkdir("./build");
+      grunt.file.copy("./bower_components/requirejs/require.js", "./build/require.js");
       grunt.log.ok("Added build folder.");
     } else {
+      grunt.file.copy("./bower_components/requirejs/require.js", "./build/require.js");
       grunt.log.ok("Build file exists.");
     }
   });
 
     //gitless and modernizr must happen before require.  These both create files used by require.
-  grunt.registerTask("default", ["setup_build", "jshint", "requirejs:build", "uglify",
-      "less:terminal"]);
+  grunt.registerTask("default", ["setup_build", "jshint", "requirejs:build", "uglify", "less:terminal"]);
 };

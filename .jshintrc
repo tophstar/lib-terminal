@@ -32,5 +32,6 @@
   "eqnull": true,
   "multistr": true,
   "unused": false,
-  "trailing": true
+  "trailing": true,
+  "esnext": false
 }

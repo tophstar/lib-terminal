@@ -22,6 +22,8 @@
     });
 
     $scope.$watchCollection(function () { return $scope.session.output; }, function (n) {
+        console.log("session output changed");
+
         for (var i = 0; i < n.length; i++) {
             $scope.$broadcast('terminal-output', n[i]);
         }
