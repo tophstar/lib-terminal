@@ -4,6 +4,9 @@
 
 		$scope.commandLine = '';
 
+		$scope.waiting = false;
+		$scope.waitingInterval = {};
+
 		$scope.results = [];
 		$scope.showPrompt = true;
 		$scope.typeSound = function () { };
@@ -51,8 +54,32 @@
 			$scope.safeApply();
 		};
 
+		$scope.$on('terminal-wait', function (event, val) {
+
+
+			$scope.waiting = !!val;
+console.log("got here"+ $scope.waiting);
+			//reset-prompt
+//			$scope.$broadcast('terminal-command', 'reset-prompt');
+
+			if(!$scope.waiting){
+				clearInterval($scope.waitingInterval);
+				return;
+			}
+
+			$scope.waitingInterval = setInterval(function () {
+				console.log('waiting');
+				//next terminal-output
+				$scope.$broadcast('terminal-output',{
+					output: true,
+					text: ['working...'],
+					breakLine: true
+				});
+				$scope.safeApply();
+			}, 1000);
+		});
+
 		$scope.$on('terminal-output', function (e, output) {
-			console.log("Output Captured");
 			if (!output.added) {
 				output.added = true;
 				$scope.results.push(output);

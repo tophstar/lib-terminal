@@ -11,13 +11,15 @@
                 RSVPAuthCommandHandler.description = ['RSVP Authentication Step Failed'];
                 RSVPAuthCommandHandler.parentCommand = ['RSVPAuthFailed', 'RSVPAuth'];
 
-                RSVPAuthCommandHandler.handle = function (session, cmd) {
+                RSVPAuthCommandHandler.handle = function (session, cmd, scope) {
                     var outText = [];
                     var childHandler = '';
 
                     var injector = global.angular.injector(['ng']),
                         http = injector.get('$http'),
                         q = injector.get('$q');
+
+                    scope.$broadcast('terminal-wait', true);
 
                     var fakeHttpCall = function(isSuccessful) {
 

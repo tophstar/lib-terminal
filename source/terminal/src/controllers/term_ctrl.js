@@ -44,7 +44,7 @@
                 $scope.session.context.execute($scope.session, cmd.command);
             }
             else {
-                $commandBroker.execute($scope.session, cmd.command);
+                $commandBroker.execute($scope.session, cmd.command, $scope);
             }
         } catch (err) {
             $scope.session.output.push({ output: true, breakLine: true, text: [err.message] });

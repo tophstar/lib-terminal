@@ -15,13 +15,15 @@
                 //@TODO how am I going to implement this?  Maybe there shouldn't be an auth failed and it just returns to RSVPAuth
                 RSVPEmailCommandHandler.parentCommand = ['RSVPEmail', 'RSVPAuth', 'RSVPAuthFailed'];
 
-                RSVPEmailCommandHandler.handle = function (session, cmd) {
+                RSVPEmailCommandHandler.handle = function (session, cmd, scope) {
                     var outText = [];
 
                     var injector = global.angular.injector(['ng']),
                         http = injector.get('$http'),
                         q = injector.get('$q');
 
+
+                    scope.$broadcast('terminal-wait', true);
 
                     var fakeHttpCall = function(isSuccessful) {
 

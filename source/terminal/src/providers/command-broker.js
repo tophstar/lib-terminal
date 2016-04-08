@@ -35,7 +35,7 @@
 
         me.$get = ['$injector', '$commandLineSplitter', function ($injector, $commandLineSplitter) {
             return {
-                execute: function (session, consoleInput) {
+                execute: function (session, consoleInput, scope) {
 
                     var childCommand;
 
@@ -122,6 +122,7 @@
                             var tempCmd = p[0];
                             p[0] = tempSession;
                             p[1] = tempCmd;
+                            p[2] = scope;
 
 
 
@@ -148,17 +149,21 @@
                             /*jshint ignore:start*/
                             if(childCommand){
                                 childCommand.then(function (data) {
-                                    console.log("got here after everything");
-                                    
-                                    temp = me.childHandlers.filter(function (item) {
-                                        return item.command.toLowerCase() === data.toLowerCase();
-                                    });
+                                    //for testing setTimeout(function () {
+                                        console.log("got here after everything");
+                                        scope.$broadcast('terminal-wait', false);
+                                        temp = me.childHandlers.filter(function (item) {
+                                            return item.command.toLowerCase() === data.toLowerCase();
+                                        });
 
-                                    if(temp.length){
-                                        me.childHandlersStack.push(temp);
-                                    }
+                                        if(temp.length){
+                                            me.childHandlersStack.push(temp);
+                                        }
 
-                                    angular.extend(session, tempSession);
+                                        angular.extend(session, tempSession);
+
+                                        scope.safeApply();
+                                    //}, 5000);
                                 });
                             }
                             else

@@ -11,7 +11,9 @@
                 RSVPAuthCommandHandler.description = ['RSVP Authentication Step'];
                 RSVPAuthCommandHandler.parentCommand = ['RSVPAuth', 'RSVP'];
 
-                RSVPAuthCommandHandler.handle = function (session, cmd) {
+                RSVPAuthCommandHandler.handle = function (session, cmd, scope) {
+
+                    scope.$broadcast('terminal-wait', true);
 
                     var injector = global.angular.injector(['ng']),
                         http = injector.get('$http'),
@@ -68,9 +70,6 @@
                             console.log(err);
                           });
                     }
-
-
-
                 };
 
                 $commandBrokerProvider.appendChildCommandHandler(RSVPAuthCommandHandler);
