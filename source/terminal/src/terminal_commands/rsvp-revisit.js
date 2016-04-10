@@ -30,30 +30,23 @@
                       var deferred = q.defer();
 
 
-                        if(isSuccessful === "false"){
+                        if(isSuccessful === "true"){
+
+                            //Show view/edit directive
+
+
                             deferred.resolve(
                                 {
-                                    'childHandler' : 'RSVPRevisit',
-                                    'outText' : "You have already RSVP'd. Would you like to view/edit your RSVP?."
+                                    'childHandler' : 'This should show the view/edit directive',
+                                    'outText' : ""
                                 }
                             );
                         }
-                        else if (isSuccessful === "true") {
+                        else if (isSuccessful === "false") {
                             deferred.resolve(
                             {
-                                'childHandler' : 'RSVPName',
+                                'childHandler' : '',
                                 'outText' : '\n  You have now begun the RSVP process.\n' +
-                                '  You will be able to RSVP all the guest coming with you, ' +
-                                'but to begin with I need to ask you a few questions.\n\n' +
-                                '  First, please re-enter your email.'
-                            });
-                        }
-                        else if(isSuccessful === "continue"){
-                            deferred.resolve(
-                            {
-                                'childHandler' : 'RSVPName',
-                                'outText' : '\n  You did not complete your RSVP process the first time through.\n\n' +
-                                '  You will have to start again from the begining of the RSVP process.\n' +
                                 '  You will be able to RSVP all the guest coming with you, ' +
                                 'but to begin with I need to ask you a few questions.\n\n' +
                                 '  First, please re-enter your email.'
@@ -75,8 +68,7 @@
                     if(cmd === 'help'){
                         var deferred = q.defer();
 
-                        outText.push("Please re-enter your email for verification purposes.\n\n  "+
-                            "If you do not complete the RSVP process you will need to start from the beginning again.");
+                        outText.push("");
                         session.output.push({ output: true, text: outText, breakLine: true });
                         deferred.resolve('RSVPEmail');
 
@@ -84,7 +76,7 @@
                     }
                     else if(cmd === 'exit'){
                         var deferred2 = q.defer();
-                        outText.push("You have quit the RSVP before completing.   You will have to start over again.");
+                        outText.push("");
                         session.output.push({ output: true, text: outText, breakLine: true });
                         deferred2.resolve('');
 

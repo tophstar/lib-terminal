@@ -3,19 +3,19 @@
 
         return function (module) {
 
-            module.config(['$commandBrokerProvider', function ($commandBrokerProvider) {
+            module.config(['$commandBrokerProvider', function ($commandBrokerProvider, $q) {
 
-                var RSVPEmailCommandHandler = {};
+                var RSVPNameCommandHandler = {};
 
-                RSVPEmailCommandHandler.command = 'RSVPEmail';
-                RSVPEmailCommandHandler.description = ['RSVP Email Step'];
+                RSVPNameCommandHandler.command = 'RSVPName';
+                RSVPNameCommandHandler.description = ['RSVP Name Step'];
 
 
 
                 //@TODO how am I going to implement this?  Maybe there shouldn't be an auth failed and it just returns to RSVPAuth
-                RSVPEmailCommandHandler.parentCommand = ['RSVPEmail', 'RSVPAuth', 'RSVPAuthFailed'];
+                RSVPNameCommandHandler.parentCommand = ['RSVPName', 'RSVPEmail'];
 
-                RSVPEmailCommandHandler.handle = function (session, cmd, scope) {
+                RSVPNameCommandHandler.handle = function (session, cmd, scope) {
                     var outText = [];
 
                     var injector = global.angular.injector(['ng']),
@@ -30,40 +30,26 @@
                       var deferred = q.defer();
 
 
-                        if(isSuccessful === "false"){
+                        if(isSuccessful === "true"){
                             deferred.resolve(
                                 {
-                                    'childHandler' : 'RSVPRevisit',
-                                    'outText' : "You have already RSVP'd. Would you like to view/edit your RSVP?."
+                                    'childHandler' : 'RSVPCeremony',
+                                    'outText':"\n  Now, please enter your first and last name."
                                 }
                             );
                         }
-                        else if (isSuccessful === "true") {
+                        else if(isSuccessful === "false"){
                             deferred.resolve(
                             {
                                 'childHandler' : 'RSVPName',
-                                'outText' : '\n  You have now begun the RSVP process.\n' +
-                                '  You will be able to RSVP all the guest coming with you, ' +
-                                'but to begin with I need to ask you a few questions.\n\n' +
-                                '  First, please re-enter your email.'
-                            });
-                        }
-                        else if(isSuccessful === "continue"){
-                            deferred.resolve(
-                            {
-                                'childHandler' : 'RSVPName',
-                                'outText' : '\n  You did not complete your RSVP process the first time through.\n\n' +
-                                '  You will have to start again from the begining of the RSVP process.\n' +
-                                '  You will be able to RSVP all the guest coming with you, ' +
-                                'but to begin with I need to ask you a few questions.\n\n' +
-                                '  First, please re-enter your email.'
+                                'outText' : "Emails did not match.  Please try again."
                             });
                         }
                         else {
                             deferred.resolve(
                             {
                                 'childHandler' : '',
-                                'outText' : 'Error.'
+                                'outText' : "Error."
                             });
                         }
 
@@ -75,10 +61,9 @@
                     if(cmd === 'help'){
                         var deferred = q.defer();
 
-                        outText.push("Please re-enter your email for verification purposes.\n\n  "+
-                            "If you do not complete the RSVP process you will need to start from the beginning again.");
+                        outText.push("Please enter your first and last name so we know who is registering.");
                         session.output.push({ output: true, text: outText, breakLine: true });
-                        deferred.resolve('RSVPEmail');
+                        deferred.resolve('RSVPName');
 
                         return deferred.promise;
                     }
@@ -110,7 +95,7 @@
 
                 };
 
-                $commandBrokerProvider.appendChildCommandHandler(RSVPEmailCommandHandler);
+                $commandBrokerProvider.appendChildCommandHandler(RSVPNameCommandHandler);
             }]);
         };
     });

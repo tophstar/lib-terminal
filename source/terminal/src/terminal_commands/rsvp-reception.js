@@ -3,19 +3,19 @@
 
         return function (module) {
 
-            module.config(['$commandBrokerProvider', function ($commandBrokerProvider) {
+            module.config(['$commandBrokerProvider', function ($commandBrokerProvider, $q) {
 
-                var RSVPEmailCommandHandler = {};
+                var RSVPReceptionCommandHandler = {};
 
-                RSVPEmailCommandHandler.command = 'RSVPEmail';
-                RSVPEmailCommandHandler.description = ['RSVP Email Step'];
+                RSVPReceptionCommandHandler.command = 'RSVPReception';
+                RSVPReceptionCommandHandler.description = ['First time RSVP for the reception.'];
 
 
 
                 //@TODO how am I going to implement this?  Maybe there shouldn't be an auth failed and it just returns to RSVPAuth
-                RSVPEmailCommandHandler.parentCommand = ['RSVPEmail', 'RSVPAuth', 'RSVPAuthFailed'];
+                RSVPReceptionCommandHandler.parentCommand = ['RSVPReception', 'RSVPCeremonyChildren'];
 
-                RSVPEmailCommandHandler.handle = function (session, cmd, scope) {
+                RSVPReceptionCommandHandler.handle = function (session, cmd, scope) {
                     var outText = [];
 
                     var injector = global.angular.injector(['ng']),
@@ -30,40 +30,31 @@
                       var deferred = q.defer();
 
 
-                        if(isSuccessful === "false"){
+                        if(isSuccessful === "true"){
                             deferred.resolve(
                                 {
-                                    'childHandler' : 'RSVPRevisit',
-                                    'outText' : "You have already RSVP'd. Would you like to view/edit your RSVP?."
+                                    'childHandler' : 'RSVPReceptionAdults',
+                                    'outText' : '\n  Are you or anyone in your party attending the Reception after the Wedding Ceremony?\n\n' +
+                                        '  The reception be on the same day August 18th at 6:00 pm at the Sweet Cheeks Winery.\n' +
+                                        '  The winery is located 15 minutes outside Eugene at:\n' +
+                                        '  27007 Briggs Hill Rd,\n  Eugene, OR 97405\n\n' +
+                                        '  Please answer yes or no.'
                                 }
                             );
                         }
-                        else if (isSuccessful === "true") {
-                            deferred.resolve(
-                            {
-                                'childHandler' : 'RSVPName',
-                                'outText' : '\n  You have now begun the RSVP process.\n' +
-                                '  You will be able to RSVP all the guest coming with you, ' +
-                                'but to begin with I need to ask you a few questions.\n\n' +
-                                '  First, please re-enter your email.'
-                            });
+                        else if(isSuccessful === "false") {
+                                deferred.resolve(
+                                {
+                                    'childHandler' : 'RSVPReception',
+                                    'outText' : '\n  Please enter a valid number of children attending the ceremony.'
+                                }
+                            );
                         }
-                        else if(isSuccessful === "continue"){
-                            deferred.resolve(
-                            {
-                                'childHandler' : 'RSVPName',
-                                'outText' : '\n  You did not complete your RSVP process the first time through.\n\n' +
-                                '  You will have to start again from the begining of the RSVP process.\n' +
-                                '  You will be able to RSVP all the guest coming with you, ' +
-                                'but to begin with I need to ask you a few questions.\n\n' +
-                                '  First, please re-enter your email.'
-                            });
-                        }
-                        else {
+                        else{
                             deferred.resolve(
                             {
                                 'childHandler' : '',
-                                'outText' : 'Error.'
+                                'outText' : "Something went wrong...."
                             });
                         }
 
@@ -75,14 +66,13 @@
                     if(cmd === 'help'){
                         var deferred = q.defer();
 
-                        outText.push("Please re-enter your email for verification purposes.\n\n  "+
-                            "If you do not complete the RSVP process you will need to start from the beginning again.");
+                        outText.push("We need to know if you are attending the ceremony and/or the reception.  Please answer with yes or no.");
                         session.output.push({ output: true, text: outText, breakLine: true });
-                        deferred.resolve('RSVPEmail');
+                        deferred.resolve('RSVPCeremony');
 
                         return deferred.promise;
                     }
-                    else if(cmd === 'exit'){
+                    else if(cmd.toLowerCase() === 'exit'){
                         var deferred2 = q.defer();
                         outText.push("You have quit the RSVP before completing.   You will have to start over again.");
                         session.output.push({ output: true, text: outText, breakLine: true });
@@ -110,7 +100,7 @@
 
                 };
 
-                $commandBrokerProvider.appendChildCommandHandler(RSVPEmailCommandHandler);
+                $commandBrokerProvider.appendChildCommandHandler(RSVPReceptionCommandHandler);
             }]);
         };
     });

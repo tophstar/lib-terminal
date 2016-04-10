@@ -58,9 +58,6 @@
 
 
 			$scope.waiting = !!val;
-console.log("got here"+ $scope.waiting);
-			//reset-prompt
-//			$scope.$broadcast('terminal-command', 'reset-prompt');
 
 			if(!$scope.waiting){
 				clearInterval($scope.waitingInterval);
@@ -122,7 +119,6 @@ console.log("got here"+ $scope.waiting);
 		});
 
 		$scope.keypress= function (keyCode) {
-			console.log("key pressed");
 			if ($scope.commandLine.length < 80) {
 				commandIndex = -1;
 				$scope.commandLine += String.fromCharCode(keyCode);

@@ -16,8 +16,6 @@
 
     var terminalTargetSelector = options.getTerminalElementSelector();
 
-    console.log("Target"+terminalTargetSelector);
-
     var terminalTarget = TemplateRenderer.document.querySelector(terminalTargetSelector);
 
     if (terminalTarget) {

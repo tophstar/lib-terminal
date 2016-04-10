@@ -9,6 +9,7 @@
 					"<span class='terminal-cursor'>_</span>" +
 					"<input type='text' ng-model='commandLine' class='terminal-target'/>" +
 				"</div>" +
+//				"<div ng-transclude></div>" +
 			"</section>";
     });
 }());
