@@ -4,6 +4,8 @@
 
 		$scope.commandLine = '';
 
+		$scope.showCommandTerminal = true;
+
 		$scope.waiting = false;
 		$scope.waitingInterval = {};
 

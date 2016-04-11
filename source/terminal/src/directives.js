@@ -6,8 +6,10 @@
   };
 
   define([
+    "./directives/rsvp-edit",
     "./directives/terminal-output"
   ], function (
+    RSVPEdit,
     TerminalOutput
     ) {
     Directives.list = arguments;

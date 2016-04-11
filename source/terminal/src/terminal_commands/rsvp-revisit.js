@@ -5,17 +5,17 @@
 
             module.config(['$commandBrokerProvider', function ($commandBrokerProvider) {
 
-                var RSVPEmailCommandHandler = {};
+                var RSVPRevisitCommandHandler = {};
 
-                RSVPEmailCommandHandler.command = 'RSVPEmail';
-                RSVPEmailCommandHandler.description = ['RSVP Email Step'];
+                RSVPRevisitCommandHandler.command = 'RSVPRevisit';
+                RSVPRevisitCommandHandler.description = ['RSVP Email Step'];
 
 
 
                 //@TODO how am I going to implement this?  Maybe there shouldn't be an auth failed and it just returns to RSVPAuth
-                RSVPEmailCommandHandler.parentCommand = ['RSVPEmail', 'RSVPAuth', 'RSVPAuthFailed'];
+                RSVPRevisitCommandHandler.parentCommand = ['RSVPRevisit', 'RSVPEmail'];
 
-                RSVPEmailCommandHandler.handle = function (session, cmd, scope) {
+                RSVPRevisitCommandHandler.handle = function (session, cmd, scope) {
                     var outText = [];
 
                     var injector = global.angular.injector(['ng']),
@@ -34,6 +34,9 @@
 
                             //Show view/edit directive
 
+
+
+                            scope.$broadcast('switchToRSVPEdit');
 
                             deferred.resolve(
                                 {
@@ -70,7 +73,7 @@
 
                         outText.push("");
                         session.output.push({ output: true, text: outText, breakLine: true });
-                        deferred.resolve('RSVPEmail');
+                        deferred.resolve('RSVPRevisit');
 
                         return deferred.promise;
                     }
@@ -102,7 +105,7 @@
 
                 };
 
-                $commandBrokerProvider.appendChildCommandHandler(RSVPEmailCommandHandler);
+                $commandBrokerProvider.appendChildCommandHandler(RSVPRevisitCommandHandler);
             }]);
         };
     });

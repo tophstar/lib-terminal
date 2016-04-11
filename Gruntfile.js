@@ -13,6 +13,11 @@ module.exports = function (grunt) {
 
     },
 
+    less: {
+      files: ["less/**/*.less"],
+      tasks: ["less:terminal"]
+    },
+
     requirejs: {
       build: {
         options: {
