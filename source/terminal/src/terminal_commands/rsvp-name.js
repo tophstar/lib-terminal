@@ -25,35 +25,36 @@
 
                     scope.$broadcast('terminal-wait', true);
 
-                    var fakeHttpCall = function(isSuccessful) {
-
-                      var deferred = q.defer();
 
 
-                        if(isSuccessful === "true"){
-                            deferred.resolve(
+
+
+
+
+                    var rsvpAjaxHandler = function(response) {
+
+                      var rsvpResponse = {};
+
+                      if(!response || !response.data){
+                        return {'childHandler' : '', 'outText' : 'Error.'};
+                      }
+
+                        if(response.data['status'] === "success"){
+                            rsvpResponse =
                                 {
                                     'childHandler' : 'RSVPCeremony',
                                     'outText':"\n  Now, please enter your first and last name."
-                                }
-                            );
-                        }
-                        else if(isSuccessful === "false"){
-                            deferred.resolve(
-                            {
-                                'childHandler' : 'RSVPName',
-                                'outText' : "Emails did not match.  Please try again."
-                            });
+                                };
                         }
                         else {
-                            deferred.resolve(
+                            rsvpResponse =
                             {
                                 'childHandler' : '',
                                 'outText' : "Error."
-                            });
+                            };
                         }
 
-                      return deferred.promise;
+                      return rsvpResponse;
                     };
 
 
@@ -75,22 +76,46 @@
 
                         return deferred2.promise;
                     }
+                    else if(cmd !== scope.rsvpEmail){
+                        var deferred3 = q.defer();
+                        outText.push("Emails did not match.  Please try again.");
+                        session.output.push({ output: true, text: outText, breakLine: true });
+                        deferred3.resolve('RSVPName');
+
+                        return deferred3.promise;
+                    }
                     else{
 
-                        return fakeHttpCall(cmd).then(
+
+                        var req = {
+                         method: 'POST',
+                         url: '/rsvp/registerEmail',
+                         headers: {
+                            'Content-Type': 'application/json',
+                            "x-requested-with": "XMLHttpRequest",
+                         },
+                         data: {
+                            'email': cmd ,
+                            'accessToken' : scope.rsvpAccessToken,
+                            'ttl': scope.rsvpAccessTokenTTL,
+                            'created': scope.rsvpAccessTokenCreated
+                          }
+                        };
+
+                        return http(req).then(
                             function (data) {
+
+                                var rsvpResponse = rsvpAjaxHandler(data);
+
                                 var deferred = q.defer();
                                 // success callback
-                                outText.push(data['outText']);
+                                outText.push(rsvpResponse['outText']);
                                 session.output.push({ output: true, text: outText, breakLine: true });
-                                deferred.resolve(data['childHandler']);
 
-                            return deferred.promise;
-                        },
-                        function (err) {
-                            // error callback
-                            console.log(err);
-                        });
+                                deferred.resolve(rsvpResponse['childHandler']);
+                                return deferred.promise;
+                            }
+                        );
                     }
 
                 };

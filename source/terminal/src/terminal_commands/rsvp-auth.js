@@ -22,28 +22,42 @@
                     var outText = [];
                     var childHandler = '';
 
-                    var fakeHttpCall = function(isSuccessful) {
 
-                      var deferred = q.defer();
 
-                        if(isSuccessful === "true"){
-                            deferred.resolve(
+                    var rsvpAjaxHandler = function(response) {
+
+                        var rsvpResponse = {};
+
+                        if(!response || !response.data) {
+                            return {'childHandler' : '', 'outText' : "Error."};
+                        }
+
+                        if(!!response.data['accessToken'] && !!response.data['ttl'] && !!response.data['created']){
+                            scope.rsvpAccessToken = response.data['accessToken'];
+                            scope.rsvpAccessTokenTTL = response.data['ttl'];
+                            scope.rsvpAccessTokenCreated = response.data['created'];
+
+                            rsvpResponse =
                                 {
                                     'childHandler' : 'RSVPEmail',
                                     'outText':"Please enter your email."
-                                }
-                            );
+                                };
                         }
                         else{
-                            deferred.resolve(
+                            rsvpResponse =
                             {
                                 'childHandler' : 'RSVPAuthFailed',
                                 'outText' : "Token not recognized.  Please re-enter the token."
-                            });
+                            };
                         }
 
-                      return deferred.promise;
+                      return rsvpResponse;
                     };
+
+
+
+
+
 
 
                     if(cmd === 'help'){
@@ -55,20 +69,31 @@
                         return deferred.promise;
                     }
                     else{
-                        return fakeHttpCall(cmd).then(
-                          function (data) {
-                            var deferred = q.defer();
-                            // success callback
-                            outText.push(data['outText']);
-                            session.output.push({ output: true, text: outText, breakLine: true });
-                            deferred.resolve(data['childHandler']);
 
-                            return deferred.promise;
-                          },
-                          function (err) {
-                            // error callback
-                            console.log(err);
-                          });
+                        var req = {
+                         method: 'POST',
+                         url: '/rsvp/getAccessToken',
+                         headers: {
+                            'Content-Type': 'application/json',
+                            "x-requested-with": "XMLHttpRequest",
+                         },
+                         data: { token: cmd }
+                        };
+
+                        return http(req).then(
+                            function (data) {
+
+                                var rsvpResponse = rsvpAjaxHandler(data);
+
+                                var deferred = q.defer();
+                                // success callback
+                                outText.push(rsvpResponse['outText']);
+                                session.output.push({ output: true, text: outText, breakLine: true });
+
+                                deferred.resolve(rsvpResponse['childHandler']);
+                                return deferred.promise;
+                            }
+                        );
                     }
                 };
 

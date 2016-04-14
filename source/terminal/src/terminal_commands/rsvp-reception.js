@@ -25,13 +25,17 @@
 
                     scope.$broadcast('terminal-wait', true);
 
-                    var fakeHttpCall = function(isSuccessful) {
-
-                      var deferred = q.defer();
 
 
-                        if(isSuccessful === "true"){
-                            deferred.resolve(
+
+
+
+                    var rsvpAjaxHandler = function(response) {
+
+                        var rsvpResponse = {};
+
+                        if(response.data['status'] === "success"){
+                            rsvpResponse =
                                 {
                                     'childHandler' : 'RSVPReceptionAdults',
                                     'outText' : '\n  Are you or anyone in your party attending the Reception after the Wedding Ceremony?\n\n' +
@@ -39,26 +43,17 @@
                                         '  The winery is located 15 minutes outside Eugene at:\n' +
                                         '  27007 Briggs Hill Rd,\n  Eugene, OR 97405\n\n' +
                                         '  Please answer yes or no.'
-                                }
-                            );
-                        }
-                        else if(isSuccessful === "false") {
-                                deferred.resolve(
-                                {
-                                    'childHandler' : 'RSVPReception',
-                                    'outText' : '\n  Please enter a valid number of children attending the ceremony.'
-                                }
-                            );
+                                };
                         }
                         else{
-                            deferred.resolve(
+                            rsvpResponse =
                             {
                                 'childHandler' : '',
                                 'outText' : "Something went wrong...."
-                            });
+                            };
                         }
 
-                      return deferred.promise;
+                      return rsvpResponse;
                     };
 
 
@@ -80,22 +75,49 @@
 
                         return deferred2.promise;
                     }
+                    else if(isNaN(cmd)){
+                        var deferred3 = q.defer();
+
+                        outText.push('\n  Please enter a valid number of children attending the ceremony.');
+                        session.output.push({ output: true, text: outText, breakLine: true });
+                        deferred3.resolve('RSVPReception');
+
+                        return deferred3.promise;
+                    }
                     else{
 
-                        return fakeHttpCall(cmd).then(
+                        cmd = Number(cmd);
+
+                        var req = {
+                         method: 'POST',
+                         url: '/rsvp/registerChildrenCeremony',
+                         headers: {
+                            'Content-Type': 'application/json',
+                            "x-requested-with": "XMLHttpRequest",
+                         },
+                         data: {
+                            'email': scope.rsvpEmail,
+                            'childrenCeremony': cmd,
+                            'accessToken' : scope.rsvpAccessToken,
+                            'ttl': scope.rsvpAccessTokenTTL,
+                            'created': scope.rsvpAccessTokenCreated
+                          }
+                        };
+
+                        return http(req).then(
                             function (data) {
+
+                                var rsvpResponse = rsvpAjaxHandler(data);
+
                                 var deferred = q.defer();
                                 // success callback
-                                outText.push(data['outText']);
+                                outText.push(rsvpResponse['outText']);
                                 session.output.push({ output: true, text: outText, breakLine: true });
-                                deferred.resolve(data['childHandler']);
 
-                            return deferred.promise;
-                        },
-                        function (err) {
-                            // error callback
-                            console.log(err);
-                        });
+                                deferred.resolve(rsvpResponse['childHandler']);
+                                return deferred.promise;
+                            }
+                        );
                     }
 
                 };

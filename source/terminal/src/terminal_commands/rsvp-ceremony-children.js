@@ -25,38 +25,28 @@
 
                     scope.$broadcast('terminal-wait', true);
 
-                    var fakeHttpCall = function(isSuccessful) {
-
-                      var deferred = q.defer();
 
 
-                        //Check email is valid....
+                    var rsvpAjaxHandler = function(response) {
 
-                        if(isSuccessful === "true"){
-                            deferred.resolve(
+                        var rsvpResponse = {};
+
+                        if(response.data['status'] === "success"){
+                            rsvpResponse =
                                 {
                                     'childHandler' : 'RSVPReception',
                                     'outText' : '\n  How many children in your party are attending the ceremony?'
-                                }
-                            );
-                        }
-                        else if(isSuccessful === "false") {
-                                deferred.resolve(
-                                {
-                                    'childHandler' : 'RSVPReception',
-                                    'outText' : '\n  Please enter a valid number of adults attending the ceremony.'
-                                }
-                            );
+                                };
                         }
                         else{
-                            deferred.resolve(
+                            rsvpResponse =
                             {
                                 'childHandler' : '',
                                 'outText' : "Something went wrong...."
-                            });
+                            };
                         }
 
-                      return deferred.promise;
+                        return rsvpResponse;
                     };
 
 
@@ -79,22 +69,49 @@
 
                         return deferred2.promise;
                     }
+                    else if(isNaN(cmd)){
+                        var deferred3 = q.defer();
+
+                        outText.push('\n  Please enter a valid number of adults attending the ceremony.');
+                        session.output.push({ output: true, text: outText, breakLine: true });
+                        deferred3.resolve('RSVPCeremonyChildren');
+
+                        return deferred3.promise;
+                    }
                     else{
 
-                        return fakeHttpCall(cmd).then(
+                        cmd = Number(cmd);
+
+                        var req = {
+                         method: 'POST',
+                         url: '/rsvp/registerAdultsCeremony',
+                         headers: {
+                            'Content-Type': 'application/json',
+                            "x-requested-with": "XMLHttpRequest",
+                         },
+                         data: {
+                            'email': scope.rsvpEmail,
+                            'adultsCeremony': cmd,
+                            'accessToken' : scope.rsvpAccessToken,
+                            'ttl': scope.rsvpAccessTokenTTL,
+                            'created': scope.rsvpAccessTokenCreated
+                          }
+                        };
+
+                        return http(req).then(
                             function (data) {
+
+                                var rsvpResponse = rsvpAjaxHandler(data);
+
                                 var deferred = q.defer();
                                 // success callback
-                                outText.push(data['outText']);
+                                outText.push(rsvpResponse['outText']);
                                 session.output.push({ output: true, text: outText, breakLine: true });
-                                deferred.resolve(data['childHandler']);
 
-                            return deferred.promise;
-                        },
-                        function (err) {
-                            // error callback
-                            console.log(err);
-                        });
+                                deferred.resolve(rsvpResponse['childHandler']);
+                                return deferred.promise;
+                            }
+                        );
                     }
 
                 };

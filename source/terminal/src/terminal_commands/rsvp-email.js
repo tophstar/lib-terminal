@@ -25,31 +25,48 @@
 
                     scope.$broadcast('terminal-wait', true);
 
-                    var fakeHttpCall = function(isSuccessful) {
-
-                      var deferred = q.defer();
 
 
-                        if(isSuccessful === "false"){
-                            deferred.resolve(
+
+
+
+
+                    var rsvpAjaxHandler = function(response) {
+
+                      var rsvpResponse = {};
+
+                      if(!response || !response.data){
+                        return {'childHandler' : '', 'outText' : 'Error.'};
+                      }
+
+
+                        if(response.data['status'] === "duplicate_complete"){
+                            rsvpResponse =
                                 {
                                     'childHandler' : 'RSVPRevisit',
                                     'outText' : "You have already RSVP'd. Would you like to view/edit your RSVP?."
-                                }
-                            );
+                                };
                         }
-                        else if (isSuccessful === "true") {
-                            deferred.resolve(
+                        else if (response.data['status'] === "duplicate") {
+                            rsvpResponse =
+                            {
+                                'childHandler' : 'RSVPCeremony',
+                                'outText' : '\n  You have now restarted the RSVP process.\n\n' +
+                                '  Please enter you name.'
+                            };
+                        }
+                        else if (response.data['status'] === "success") {
+                            rsvpResponse =
                             {
                                 'childHandler' : 'RSVPName',
                                 'outText' : '\n  You have now begun the RSVP process.\n' +
                                 '  You will be able to RSVP all the guest coming with you, ' +
                                 'but to begin with I need to ask you a few questions.\n\n' +
                                 '  First, please re-enter your email.'
-                            });
+                            };
                         }
-                        else if(isSuccessful === "continue"){
-                            deferred.resolve(
+/*                        else if(!!response.data['status'] === "continue"){
+                            rsvpResponse =
                             {
                                 'childHandler' : 'RSVPName',
                                 'outText' : '\n  You did not complete your RSVP process the first time through.\n\n' +
@@ -57,17 +74,17 @@
                                 '  You will be able to RSVP all the guest coming with you, ' +
                                 'but to begin with I need to ask you a few questions.\n\n' +
                                 '  First, please re-enter your email.'
-                            });
+                            };
                         }
-                        else {
-                            deferred.resolve(
+*/                        else {
+                            rsvpResponse =
                             {
                                 'childHandler' : '',
                                 'outText' : 'Error.'
-                            });
+                            };
                         }
 
-                      return deferred.promise;
+                      return rsvpResponse;
                     };
 
 
@@ -76,6 +93,7 @@
                         var deferred = q.defer();
 
                         outText.push("Please re-enter your email for verification purposes.\n\n  "+
+                            "If you don't have an email please use the email fake@fake.com.\n\n  "+
                             "If you do not complete the RSVP process you will need to start from the beginning again.");
                         session.output.push({ output: true, text: outText, breakLine: true });
                         deferred.resolve('RSVPEmail');
@@ -92,20 +110,40 @@
                     }
                     else{
 
-                        return fakeHttpCall(cmd).then(
+
+
+                        scope.rsvpEmail = cmd;
+
+
+                        var req = {
+                         method: 'POST',
+                         url: '/rsvp/emailRevistCheck',
+                         headers: {
+                            'Content-Type': 'application/json',
+                            "x-requested-with": "XMLHttpRequest",
+                         },
+                         data: {
+                            'email': cmd ,
+                            'accessToken' : scope.rsvpAccessToken,
+                            'ttl': scope.rsvpAccessTokenTTL,
+                            'created': scope.rsvpAccessTokenCreated
+                          }
+                        };
+
+                        return http(req).then(
                             function (data) {
+
+                                var rsvpResponse = rsvpAjaxHandler(data);
+
                                 var deferred = q.defer();
                                 // success callback
-                                outText.push(data['outText']);
+                                outText.push(rsvpResponse['outText']);
                                 session.output.push({ output: true, text: outText, breakLine: true });
-                                deferred.resolve(data['childHandler']);
 
-                            return deferred.promise;
-                        },
-                        function (err) {
-                            // error callback
-                            console.log(err);
-                        });
+                                deferred.resolve(rsvpResponse['childHandler']);
+                                return deferred.promise;
+                            }
+                        );
                     }
 
                 };

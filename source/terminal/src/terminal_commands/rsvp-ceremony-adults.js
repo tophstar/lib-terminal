@@ -25,52 +25,35 @@
 
                     scope.$broadcast('terminal-wait', true);
 
-                    var fakeHttpCall = function(isSuccessful) {
-
-                      var deferred = q.defer();
 
 
-                        //Check email is valid....
 
-                        if(isSuccessful.toLowerCase() === "yes"){
-                            deferred.resolve(
+
+
+                    var rsvpAjaxHandler = function(response) {
+
+                      var rsvpResponse = {};
+
+                        if(response.data['status'] === "success"){
+                            rsvpResponse=
                                 {
                                     'childHandler' : 'RSVPCeremonyChildren',
                                     'outText' : '\n  How many adults (including yourself) in you party are attending the Wedding Ceremony?'
-                                }
-                            );
-                        }
-                        else if(isSuccessful.toLowerCase() === 'no'){
-                            var deferred3 = q.defer();
-                            outText.push("Sorry we won't see you there, but you're not done."+
-                                        "\n  Are you or anyone in your party attending the Reception after the Wedding Ceremony?\n\n" +
-                                        '  The reception be on the same day August 18th at 6:00 pm at the Sweet Cheeks Winery.\n' +
-                                        '  The winery is located 15 minutes outside Eugene at:\n' +
-                                        '  27007 Briggs Hill Rd,\n  Eugene, OR 97405\n\n' +
-                                        '  Please answer yes or no.');
-                            session.output.push({ output: true, text: outText, breakLine: true });
-                            deferred3.resolve('RSVPReception');
-
-                            return deferred3.promise;
-                        }
-                        else if(isSuccessful === "false") {
-                            deferred.resolve(
-                                {
-                                    'childHandler' : 'RSVPCeremonyAdults',
-                                    'outText' : '\n  Please enter either yes or no'
-                                }
-                            );
+                                };
                         }
                         else{
-                            deferred.resolve(
+                            rsvpResponse =
                             {
                                 'childHandler' : '',
                                 'outText' : "Something went wrong...."
-                            });
+                            };
                         }
 
-                      return deferred.promise;
+                      return rsvpResponse;
                     };
+
+
+
 
                     if(cmd.toLowerCase() === 'help'){
                         var deferred = q.defer();
@@ -82,7 +65,7 @@
 
                         return deferred.promise;
                     }
-                    else if(cmd.toLowerCase() === 'exit'){
+                    else if(cmd.toLowerCase() === 'exit') {
                         var deferred2 = q.defer();
                         outText.push("You have quit the RSVP before completing.   You will have to start over again.");
                         session.output.push({ output: true, text: outText, breakLine: true });
@@ -90,22 +73,65 @@
 
                         return deferred2.promise;
                     }
+                    else if(cmd.toLowerCase() !== 'no' && cmd.toLowerCase() !== 'yes'){
+
+                        var deferred4 = q.defer();
+                        
+                        outText.push('Please enter either yes or no.');
+                        session.output.push({ output: true, text: outText, breakLine: true });
+                        deferred4.resolve('RSVPCeremonyAdults');
+
+                        return deferred4.promise;
+                    }
+                    else if(cmd.toLowerCase() === 'no') {
+                        var deferred3 = q.defer();
+                        outText.push("Sorry we won't see you there, but you're not done."+
+                                    "\n  Are you or anyone in your party attending the Reception after the Wedding Ceremony?\n\n" +
+                                    '  The reception be on the same day August 18th at 6:00 pm at the Sweet Cheeks Winery.\n' +
+                                    '  The winery is located 15 minutes outside Eugene at:\n' +
+                                    '  27007 Briggs Hill Rd,\n  Eugene, OR 97405\n\n' +
+                                    '  Please answer yes or no.');
+                        session.output.push({ output: true, text: outText, breakLine: true });
+                        deferred3.resolve('RSVPReception');
+
+                        return deferred3.promise;
+                    }
                     else{
 
-                        return fakeHttpCall(cmd).then(
+
+
+                        cmd = cmd.toLowerCase() === 'yes' ? '1' : '0';
+
+                        var req = {
+                         method: 'POST',
+                         url: '/rsvp/attendingCeremony',
+                         headers: {
+                            'Content-Type': 'application/json',
+                            "x-requested-with": "XMLHttpRequest",
+                         },
+                         data: {
+                            'email': scope.rsvpEmail,
+                            'attendingCeremony': cmd,
+                            'accessToken' : scope.rsvpAccessToken,
+                            'ttl': scope.rsvpAccessTokenTTL,
+                            'created': scope.rsvpAccessTokenCreated
+                          }
+                        };
+
+                        return http(req).then(
                             function (data) {
+
+                                var rsvpResponse = rsvpAjaxHandler(data);
+
                                 var deferred = q.defer();
                                 // success callback
-                                outText.push(data['outText']);
+                                outText.push(rsvpResponse['outText']);
                                 session.output.push({ output: true, text: outText, breakLine: true });
-                                deferred.resolve(data['childHandler']);
 
-                            return deferred.promise;
-                        },
-                        function (err) {
-                            // error callback
-                            console.log(err);
-                        });
+                                deferred.resolve(rsvpResponse['childHandler']);
+                                return deferred.promise;
+                            }
+                        );
                     }
 
                 };

@@ -25,40 +25,44 @@
 
                     scope.$broadcast('terminal-wait', true);
 
-                    var fakeHttpCall = function(isSuccessful) {
-
-                      var deferred = q.defer();
 
 
-                        //Check email is valid....
 
-                        if(isSuccessful === "true"){
-                            deferred.resolve(
+
+
+                    var rsvpAjaxHandler = function(response) {
+
+                      var rsvpResponse = {};
+
+                        if(response.data['status'] === "success"){
+                            rsvpResponse =
                                 {
                                     'childHandler' : 'RSVPCeremonyAdults',
                                     'outText' : '\n  Are you or anyone in your party planning on attending the Wedding Ceremony? \n\n' +
                                         '  The wedding ceremony will be held at 1:00 pm on August 18th at the Eugene Zendo located at: \n' +
                                         '  2190 Garfield St,\n  Eugene, OR 97405 \n\n' +
                                         '  Please answer yes or no.'
-                                }
-                            );
+                                };
                         }
+                        /*
+                        @TODO Pre-Validate name?
+
                         else if(isSuccessful === 'false'){
                             deferred.resolve(
                             {
                                 'childHandler' : 'RSVPCeremony',
                                 'outText' : "Please enter a valid name."
                             });
-                        }
+                        }*/
                         else {
-                            deferred.resolve(
+                            rsvpResponse =
                             {
                                 'childHandler' : '',
                                 'outText' : "error."
-                            });
+                            };
                         }
 
-                      return deferred.promise;
+                      return rsvpResponse;
                     };
 
 
@@ -82,20 +86,40 @@
                     }
                     else{
 
-                        return fakeHttpCall(cmd).then(
+
+
+
+                        var req = {
+                         method: 'POST',
+                         url: '/rsvp/registerName',
+                         headers: {
+                            'Content-Type': 'application/json',
+                            "x-requested-with": "XMLHttpRequest",
+                         },
+                         data: {
+                            'email': scope.rsvpEmail,
+                            'name': cmd,
+                            'accessToken' : scope.rsvpAccessToken,
+                            'ttl': scope.rsvpAccessTokenTTL,
+                            'created': scope.rsvpAccessTokenCreated
+                          }
+                        };
+
+                        return http(req).then(
                             function (data) {
+
+                                var rsvpResponse = rsvpAjaxHandler(data);
+
                                 var deferred = q.defer();
                                 // success callback
-                                outText.push(data['outText']);
+                                outText.push(rsvpResponse['outText']);
                                 session.output.push({ output: true, text: outText, breakLine: true });
-                                deferred.resolve(data['childHandler']);
 
-                            return deferred.promise;
-                        },
-                        function (err) {
-                            // error callback
-                            console.log(err);
-                        });
+                                deferred.resolve(rsvpResponse['childHandler']);
+                                return deferred.promise;
+                            }
+                        );
+
                     }
 
                 };
