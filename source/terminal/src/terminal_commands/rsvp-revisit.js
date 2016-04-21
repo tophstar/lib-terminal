@@ -25,45 +25,29 @@
 
                     scope.$broadcast('terminal-wait', true);
 
-                    var fakeHttpCall = function(isSuccessful) {
+                    var rsvpAjaxHandler = function(response) {
 
-                      var deferred = q.defer();
-
-
-                        if(isSuccessful === "true"){
+                      var rsvpResponse = {};
+                        if(!!response.data && response.status === 200){
 
                             //Show view/edit directive
+                            scope.$broadcast('switchToRSVPEdit', response.data);
 
-
-
-                            scope.$broadcast('switchToRSVPEdit');
-
-                            deferred.resolve(
+                            rsvpResponse =
                                 {
-                                    'childHandler' : 'This should show the view/edit directive',
+                                    'childHandler' : 'You just saw the edit screen.',
                                     'outText' : ""
-                                }
-                            );
-                        }
-                        else if (isSuccessful === "false") {
-                            deferred.resolve(
-                            {
-                                'childHandler' : '',
-                                'outText' : '\n  You have now begun the RSVP process.\n' +
-                                '  You will be able to RSVP all the guest coming with you, ' +
-                                'but to begin with I need to ask you a few questions.\n\n' +
-                                '  First, please re-enter your email.'
-                            });
+                                };
                         }
                         else {
-                            deferred.resolve(
+                            rsvpResponse =
                             {
                                 'childHandler' : '',
                                 'outText' : 'Error.'
-                            });
+                            };
                         }
 
-                      return deferred.promise;
+                      return rsvpResponse;
                     };
 
 
@@ -85,22 +69,57 @@
 
                         return deferred2.promise;
                     }
+                    else if(cmd.toLowerCase() !== 'no' && cmd.toLowerCase() !== 'yes'){
+
+                        var deferred4 = q.defer();
+                        
+                        outText.push('Please enter either yes or no.');
+                        session.output.push({ output: true, text: outText, breakLine: true });
+                        deferred4.resolve('RSVPRevisit');
+
+                        return deferred4.promise;
+                    }
+                    else if(cmd.toLowerCase() === 'no') {
+                        var deferred3 = q.defer();
+                        outText.push('Thank You.');
+                        session.output.push({ output: true, text: outText, breakLine: true });
+                        deferred3.resolve('');
+
+                        return deferred3.promise;
+                    }
                     else{
 
-                        return fakeHttpCall(cmd).then(
+
+
+                        var req = {
+                         method: 'POST',
+                         url: '/rsvp/getRsvp',
+                         headers: {
+                            'Content-Type': 'application/json',
+                            "x-requested-with": "XMLHttpRequest",
+                         },
+                         data: {
+                            'email': scope.rsvpEmail,
+                            'accessToken' : scope.rsvpAccessToken,
+                            'ttl': scope.rsvpAccessTokenTTL,
+                            'created': scope.rsvpAccessTokenCreated
+                          }
+                        };
+
+                        return http(req).then(
                             function (data) {
+
+                                var rsvpResponse = rsvpAjaxHandler(data);
+
                                 var deferred = q.defer();
                                 // success callback
-                                outText.push(data['outText']);
+                                outText.push(rsvpResponse['outText']);
                                 session.output.push({ output: true, text: outText, breakLine: true });
-                                deferred.resolve(data['childHandler']);
 
-                            return deferred.promise;
-                        },
-                        function (err) {
-                            // error callback
-                            console.log(err);
-                        });
+                                deferred.resolve(rsvpResponse['childHandler']);
+                                return deferred.promise;
+                            }
+                        );
                     }
 
                 };

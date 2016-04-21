@@ -39,7 +39,9 @@ define([], function () {
 					outText.push(str);
 					}
 					outText.push("");
-					outText.push("Enter 'help <command>' to get help for a particular command.");
+					outText.push("Type any of the above commands into the terminal below.");
+					outText.push("");
+					outText.push("If you don't know what the command will do, please enter 'help <command>' to get help for a particular command.");
 				}
 				
 				session.output.push({ output: true, text: outText, breakLine: true });

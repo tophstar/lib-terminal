@@ -25,46 +25,26 @@
 
                     scope.$broadcast('terminal-wait', true);
 
-                    var fakeHttpCall = function(isSuccessful) {
+                    var rsvpAjaxHandler = function(response) {
 
-                      var deferred = q.defer();
+                        var rsvpResponse = {};
 
-
-                        //Check email is valid....
-
-                        if(isSuccessful.toLowerCase() === "yes"){
-                            deferred.resolve(
+                        if(response.data['status'] === "success"){
+                            rsvpResponse =
                                 {
                                     'childHandler' : 'RSVPReceptionChildren',
                                     'outText' : '\n  How many adults (including yourself) are attending the reception?'
-                                }
-                            );
-                        }
-                        else if(isSuccessful.toLowerCase() === 'no'){
-                            var deferred3 = q.defer();
-                            outText.push("Sorry we won't see you there.  Now you're done.  Is there anything you would like to ask us?");
-                            session.output.push({ output: true, text: outText, breakLine: true });
-                            deferred3.resolve('RSVPComplete');
-
-                            return deferred3.promise;
-                        }
-                        else if(isSuccessful === "false") {
-                            deferred.resolve(
-                                {
-                                    'childHandler' : 'RSVPCeremonyAdults',
-                                    'outText' : '\n  Please enter either yes or no'
-                                }
-                            );
+                                };
                         }
                         else{
-                            deferred.resolve(
+                            rsvpResponse =
                             {
                                 'childHandler' : '',
                                 'outText' : "Something went wrong...."
-                            });
+                            };
                         }
 
-                      return deferred.promise;
+                      return rsvpResponse;
                     };
 
 
@@ -87,22 +67,59 @@
 
                         return deferred2.promise;
                     }
+                    else if(cmd.toLowerCase() !== 'no' && cmd.toLowerCase() !== 'yes'){
+
+                        var deferred4 = q.defer();
+                        
+                        outText.push('Please enter either yes or no.');
+                        session.output.push({ output: true, text: outText, breakLine: true });
+                        deferred4.resolve('RSVPReceptionAdults');
+
+                        return deferred4.promise;
+                    }
+                    else if(cmd.toLowerCase() === 'no') {
+                        var deferred3 = q.defer();
+                        outText.push("Sorry we won't see you there.  Now you're done.  Is there anything you would like to ask us?");
+                        session.output.push({ output: true, text: outText, breakLine: true });
+                        deferred3.resolve('RSVPReceptionAdults');
+
+                        return deferred3.promise;
+                    }
+
                     else{
 
-                        return fakeHttpCall(cmd).then(
+                        cmd = cmd.toLowerCase() === 'yes' ? '1' : '0';
+
+                        var req = {
+                         method: 'POST',
+                         url: '/rsvp/attendingReception',
+                         headers: {
+                            'Content-Type': 'application/json',
+                            "x-requested-with": "XMLHttpRequest",
+                         },
+                         data: {
+                            'email': scope.rsvpEmail,
+                            'attendingReception': cmd,
+                            'accessToken' : scope.rsvpAccessToken,
+                            'ttl': scope.rsvpAccessTokenTTL,
+                            'created': scope.rsvpAccessTokenCreated
+                          }
+                        };
+
+                        return http(req).then(
                             function (data) {
+
+                                var rsvpResponse = rsvpAjaxHandler(data);
+
                                 var deferred = q.defer();
                                 // success callback
-                                outText.push(data['outText']);
+                                outText.push(rsvpResponse['outText']);
                                 session.output.push({ output: true, text: outText, breakLine: true });
-                                deferred.resolve(data['childHandler']);
 
-                            return deferred.promise;
-                        },
-                        function (err) {
-                            // error callback
-                            console.log(err);
-                        });
+                                deferred.resolve(rsvpResponse['childHandler']);
+                                return deferred.promise;
+                            }
+                        );
                     }
 
                 };

@@ -120,6 +120,7 @@
             }
 
             scope.showPrompt = false;
+            scope.safeApply();
             var f = [function () {
                 scope.showPrompt = true;
                 scope.safeApply();
@@ -176,6 +177,11 @@
                         line1.textContent = newValue.output?'  ':'';
                         line1.className = 'terminal-line';
                         line1.textContent += newValue.text[m];
+
+                        if(!scope.introComplete){
+                            line1.className += ' intro-line';
+                        }
+
                         results[0].appendChild(line1);
                     }
                     if (!!newValue.breakLine) {

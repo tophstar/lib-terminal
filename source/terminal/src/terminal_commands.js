@@ -7,6 +7,7 @@
   };
 
   define([
+    //"./terminal_commands/clear.js",
     "./terminal_commands/help.js",
     "./terminal_commands/location.js",
     "./terminal_commands/rsvp-auth-failed.js",
@@ -25,6 +26,7 @@
     "./terminal_commands/rsvp-vegiterian.js",
     "./terminal_commands/rsvp.js"
   ], function (
+    //clear,
     help,
     location,
     rsvpAuthFailed,

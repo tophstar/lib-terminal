@@ -7,7 +7,7 @@
 						"Email" +
 					"</div>" +
 					"<div class='rsvp-edit-cell'>" +
-						"<input />" +
+						"<input ng-model='rsvp.email'/>" +
 					"</div>" +
 				"</div>" +
 
@@ -17,7 +17,7 @@
 						"Name" +
 					"</div>" +
 					"<div class='rsvp-edit-cell'>" +
-						"<input />" +
+						"<input ng-model='rsvp.name'/>" +
 					"</div>" +
 				"</div>" +
 
@@ -26,7 +26,7 @@
 						"Are you or anyone in your party attending the ceremony?" +
 					"</div>" +
 					"<div class='rsvp-edit-cell'>" +
-						"<input />" +
+						"<input ng-model='rsvp.attendingCeremony'/>" +
 					"</div>" +
 				"</div>" +
 
@@ -35,7 +35,7 @@
 						"How many adults in your party are going to the ceremony? (including yourself)" +
 					"</div>" +
 					"<div class='rsvp-edit-cell'>" +
-						"<input />" +
+						"<input ng-model='rsvp.adultsCeremony'/>" +
 					"</div>" +
 				"</div>" +
 
@@ -44,7 +44,7 @@
 						"How many children in your party are going to the ceremony?" +
 					"</div>" +
 					"<div class='rsvp-edit-cell'>" +
-						"<input />" +
+						"<input ng-model='rsvp.childrenCeremony'/>" +
 					"</div>" +
 				"</div>" +
 
@@ -53,7 +53,7 @@
 						"Are you or anyone in your party attending the reception?" +
 					"</div>" +
 					"<div class='rsvp-edit-cell'>" +
-						"<input />" +
+						"<input ng-model='rsvp.attendingCeremony'/>" +
 					"</div>" +
 				"</div>" +
 
@@ -62,7 +62,7 @@
 						"How many adults in your party are going to the reception? (including yourself)" +
 					"</div>" +
 					"<div class='rsvp-edit-cell'>" +
-						"<input />" +
+						"<input ng-model='rsvp.adultsReception'/>" +
 					"</div>" +
 				"</div>" +
 
@@ -71,7 +71,7 @@
 						"How many children in your party are going to the reception?" +
 					"</div>" +
 					"<div class='rsvp-edit-cell'>" +
-						"<input />" +
+						"<input ng-model='rsvp.childrenReception'/>" +
 					"</div>" +
 				"</div>" +
 
@@ -80,13 +80,24 @@
 						"How many vegiterians are there in your party?" +
 					"</div>" +
 					"<div class='rsvp-edit-cell'>" +
-						"<input />" +
+						"<input ng-model='rsvp.vegiterianCount'/>" +
+					"</div>" +
+				"</div>" +
+				"<div class='rsvp-edit-row'>" +
+					"<div class='rsvp-edit-cell'>" +
+						"Comments you left for us." +
+					"</div>" +
+					"<div class='rsvp-edit-cell'>" +
+						"<input ng-model='rsvp.rsvpComments'/>" +
 					"</div>" +
 				"</div>" +
 
 				"<div class='rsvp-edit-row'>" +
-					"<div class='exit-button' ng-click='exitButtonClick()'>" +
-						"exit" +
+					"<div class='rsvp-edit-cell'>" +
+						"<input type='button' class='exit-button' ng-click='exitButtonClick()' value='exit'>" +
+					"</div>" +
+					"<div class='rsvp-edit-cell'>" +
+						"<input type='button' class='exit-button' ng-click='saveButtonClick()' value='save'>" +
 					"</div>" +
 				"</div>" +
 			"</div>";

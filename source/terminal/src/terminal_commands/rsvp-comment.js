@@ -11,8 +11,6 @@
                 RSVPCommentCommandHandler.description = ['First time RSVP comments.'];
 
 
-
-                //@TODO how am I going to implement this?  Maybe there shouldn't be an auth failed and it just returns to RSVPAuth
                 RSVPCommentCommandHandler.parentCommand = ['RSVPComment', 'RSVPComplete'];
 
                 RSVPCommentCommandHandler.handle = function (session, cmd, scope) {
@@ -25,38 +23,29 @@
 
                     scope.$broadcast('terminal-wait', true);
 
-                    var fakeHttpCall = function(isSuccessful) {
-
-                      var deferred = q.defer();
 
 
-                        //Check email is valid....
 
-                        if(isSuccessful === "true"){
-                            deferred.resolve(
+                    var rsvpAjaxHandler = function(response) {
+
+                        var rsvpResponse = {};
+
+                        if(response.data['status'] === "success"){
+                            rsvpResponse =
                                 {
                                     'childHandler' : '',
                                     'outText' : '\n  Thank you for your comments.'
-                                }
-                            );
-                        }
-                        else if(isSuccessful === "false") {
-                            deferred.resolve(
-                                {
-                                    'childHandler' : '',
-                                    'outText' : ''
-                                }
-                            );
+                                };
                         }
                         else{
-                            deferred.resolve(
+                            rsvpResponse =
                             {
                                 'childHandler' : '',
                                 'outText' : "Something went wrong...."
-                            });
+                            };
                         }
 
-                      return deferred.promise;
+                      return rsvpResponse;
                     };
 
 
@@ -72,20 +61,36 @@
                     }
                     else{
 
-                        return fakeHttpCall(cmd).then(
+                        var req = {
+                         method: 'POST',
+                         url: '/rsvp/rsvpComment',
+                         headers: {
+                            'Content-Type': 'application/json',
+                            "x-requested-with": "XMLHttpRequest",
+                         },
+                         data: {
+                            'email': scope.rsvpEmail,
+                            'rsvpComments': cmd,
+                            'accessToken' : scope.rsvpAccessToken,
+                            'ttl': scope.rsvpAccessTokenTTL,
+                            'created': scope.rsvpAccessTokenCreated
+                          }
+                        };
+
+                        return http(req).then(
                             function (data) {
+
+                                var rsvpResponse = rsvpAjaxHandler(data);
+
                                 var deferred = q.defer();
                                 // success callback
-                                outText.push(data['outText']);
+                                outText.push(rsvpResponse['outText']);
                                 session.output.push({ output: true, text: outText, breakLine: true });
-                                deferred.resolve(data['childHandler']);
 
-                            return deferred.promise;
-                        },
-                        function (err) {
-                            // error callback
-                            console.log(err);
-                        });
+                                deferred.resolve(rsvpResponse['childHandler']);
+                                return deferred.promise;
+                            }
+                        );
                     }
 
                 };
