@@ -6,11 +6,11 @@ define([], function () {
 
             var LocationCommandHandler = {};
 
-            LocationCommandHandler.command = 'location';
-            LocationCommandHandler.description = ['Provides the location of the wedding events'];
+            LocationCommandHandler.command = 'registry';
+            LocationCommandHandler.description = ['Links to the weding registry.'];
 
             LocationCommandHandler.handle = function (session, cmd) {
-                var outText = ["The wedding will take place at the Eugene Zendo..."];
+                var outText = ["Would you like to see the Wedding Registry?  (It will open in a new tab)"];
 
                 session.output.push({ output: true, text: outText, breakLine: true });
             };
