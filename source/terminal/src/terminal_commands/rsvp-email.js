@@ -28,6 +28,11 @@
 
 
 
+                    var validateEmail = function (email) {
+                        return email.match(/^[-a-z0-9~!$%^&*_=+}{\'?]+(\.[-a-z0-9~!$%^&*_=+}{\'?]+)*@([a-z0-9_][-a-z0-9_]*(\.[-a-z0-9_]+)*\.(aero|arpa|biz|com|coop|edu|gov|info|int|mil|museum|name|net|org|pro|travel|mobi|[a-z][a-z])|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(:[0-9]{1,5})?$/i);
+                    };
+
+
 
 
 
@@ -87,8 +92,6 @@
                       return rsvpResponse;
                     };
 
-
-
                     if(cmd === 'help'){
                         var deferred = q.defer();
 
@@ -107,6 +110,14 @@
                         deferred2.resolve('');
 
                         return deferred2.promise;
+                    }
+                    else if(!validateEmail(cmd)) {
+                        var deferred3 = q.defer();
+                        outText.push("Something was wrong with your email.  Try a format of youremail@gmail.com, youremail@hotmail.com, ect.");
+                        session.output.push({ output: true, text: outText, breakLine: true });
+                        deferred3.resolve('RSVPEmail');
+
+                        return deferred3.promise;
                     }
                     else{
 

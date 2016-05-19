@@ -47,7 +47,7 @@
                             rsvpResponse =
                             {
                                 'childHandler' : 'RSVPAuthFailed',
-                                'outText' : "Token not recognized.  Please re-enter the token."
+                                'outText' : "Password not recognized.  Please re-enter the password."
                             };
                         }
 

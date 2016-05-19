@@ -40,14 +40,14 @@
                             rsvpResponse =
                                 {
                                     'childHandler' : 'RSVPEmail',
-                                    'outText':"Please enter your email."
+                                    'outText':"\nPlease enter your email."
                                 };
                         }
                         else{
                             rsvpResponse =
                             {
                                 'childHandler' : 'RSVPAuthFailed',
-                                'outText' : "Token not recognized.  Please re-enter the token."
+                                'outText' : "\nPassword not recognized.  Please re-enter the password."
                             };
                         }
 
@@ -62,7 +62,7 @@
 
                     if(cmd === 'help'){
                         var deferred = q.defer();
-                        outText.push("Please enter the RSVP code found on your wedding invitation.");
+                        outText.push("Please enter the RSVP password found on your wedding invitation.");
                         session.output.push({ output: true, text: outText, breakLine: true });
                         deferred.resolve('RSVPAuth');
 

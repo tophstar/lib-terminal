@@ -106,7 +106,7 @@
                             }
 
                             if (suitableHandlers.length === 0){
-                                throw new Error("There is no suitable handler for that command.");
+                                throw new Error("I can't let you do that.  If you need help type in \"Help\".");
                             }
 
 

@@ -318,7 +318,7 @@ var asciiStep3 = [
 		});
 
 		$scope.keypress= function (keyCode) {
-			if ($scope.commandLine.length < 80) {
+			if ($scope.commandLine.length < 2000) {
 				commandIndex = -1;
 				$scope.commandLine += String.fromCharCode(keyCode);
 				$scope.safeApply();

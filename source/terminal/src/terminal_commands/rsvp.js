@@ -31,7 +31,7 @@ define([], function () {
 
             RSVPCommandHandler.handle = function (session, cmd) {
                 var outText = [];
-                outText.push("To continue you will need the RSVP code found on your wedding invitation.");
+                outText.push("To continue you will need the RSVP password found on your wedding invitation.");
                 session.output.push({ output: true, text: outText, breakLine: true });
             };
 

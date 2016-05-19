@@ -4,7 +4,8 @@
 			var me = {};
 			me.typeSoundUrl =null;
 			me.startSoundUrl = null;
-			me.promptConfiguration = { end: ':>', user: '', separator: '@', path: '\\' };
+			me.promptConfiguration = { end: ' ', user: '', separator: '$', path: '' };
+			me.maxCommandLineInput = 1000;
 
 			me.getTypeEffect = null;
 			me.getStartEffect = null;
