@@ -53,7 +53,7 @@
 						"Are you or anyone in your party attending the reception?" +
 					"</div>" +
 					"<div class='rsvp-edit-cell'>" +
-						"<input ng-model='rsvp.attendingCeremony'/>" +
+						"<input ng-model='rsvp.attendingReception'/>" +
 					"</div>" +
 				"</div>" +
 

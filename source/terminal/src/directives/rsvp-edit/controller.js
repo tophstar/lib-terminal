@@ -1,5 +1,5 @@
 (function () {
-	var Controller = function ($scope, $http) {
+	var Controller = function ($scope, $http, $window) {
 
 		$scope.showRSVPEdit = false;
 
@@ -20,6 +20,9 @@
 
 		$scope.$on('switchToRSVPEdit', function (event, data) {
 
+            data.attendingCeremony = data.attendingCeremony === "1" ? 'yes':'no';
+            data.attendingReception = data.attendingReception === "1" ? 'yes':'no';
+
 			$scope.rsvp = data;
 			$scope.rsvp.oldEmail = $scope.rsvp.email;
 
@@ -35,6 +38,19 @@
 		$scope.saveButtonClick = function () {
 
 
+
+            if($scope.rsvp.attendingCeremony.toLowerCase() !== "yes" && $scope.rsvp.attendingCeremony.toLowerCase() !== "no"){
+                $window.alert("Please enter \"yes\" or \"no\" to the question \"Are you or anyone in your party attending the ceremony?\"");
+                return;
+            }
+
+            if($scope.rsvp.attendingReception.toLowerCase() !== "yes" && $scope.rsvp.attendingReception.toLowerCase() !== "no"){
+                $window.alert("Please enter \"yes\" or \"no\" to the question \"Are you or anyone in your party attending the reception?\"");
+                return;
+            }
+
+            $scope.rsvp.attendingCeremony = $scope.rsvp.attendingCeremony === "yes" ? 1:0;
+            $scope.rsvp.attendingReception = $scope.rsvp.attendingReception === "yes" ? 1:0;
 
                     var rsvpAjaxHandler = function(response) {
 

@@ -44,12 +44,6 @@
                     }
 
 
-
-
-
-
-
-
                     var fullCommandParts = $commandLineSplitter.split(consoleInput);
 
                     var stackedParts = selectByRedirectors(fullCommandParts);
@@ -106,7 +100,7 @@
                             }
 
                             if (suitableHandlers.length === 0){
-                                throw new Error("I can't let you do that.  If you need help type in \"Help\".");
+                                throw new Error("I can't let you do that.  If you need help type in \"help\".");
                             }
 
 
@@ -121,7 +115,8 @@
 
                             var tempCmd = p[0];
                             p[0] = tempSession;
-                            p[1] = tempCmd;
+                            //This was p[0], but this was filtering out multipart answers such as first and last name or comments
+                            p[1] = consoleInput;
                             p[2] = scope;
 
 
@@ -142,7 +137,6 @@
 
 //@TODO this is now an asyn process as childcommand will not sometimes not return until an ajax call has completed.
 
-
                             //This is where the command "handle(session, cmd)" is called.
                             childCommand =  h.handle.apply(h, p);
 
@@ -150,7 +144,7 @@
                             if(childCommand){
                                 childCommand.then(function (data) {
                                     //for testing setTimeout(function () {
-                                        console.log("got here after everything");
+//                                        console.log("got here after everything");
                                         scope.$broadcast('terminal-wait', false);
                                         temp = me.childHandlers.filter(function (item) {
                                             return item.command.toLowerCase() === data.toLowerCase();
