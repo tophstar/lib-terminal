@@ -25,7 +25,7 @@
 
                     scope.$broadcast('terminal-wait', true);
 
-                    var rsvpAjaxHandler = function(response) {
+                    var rsvpAjaxHandler = function(response, cmd) {
 
                         var rsvpResponse = {};
 
@@ -35,6 +35,16 @@
                                     'childHandler' : 'RSVPReceptionChildren',
                                     'outText' : '\n  How many adults (including yourself) are attending the reception?'
                                 };
+
+
+
+                            if(cmd.toLowerCase() === '0') {
+                                rsvpResponse =
+                                {
+                                    'outText' : "Sorry we won't see you there.  Now you're done. \n\n  Please leave a comment, or type in \"end\" and press enter.",
+                                    'childHandler' : 'RSVPComment'
+                                };
+                            }
                         }
                         else{
                             rsvpResponse =
@@ -77,15 +87,6 @@
 
                         return deferred4.promise;
                     }
-                    else if(cmd.toLowerCase() === 'no') {
-                        var deferred3 = q.defer();
-                        outText.push("Sorry we won't see you there.  Now you're done.  Is there anything you would like to ask us?");
-                        session.output.push({ output: true, text: outText, breakLine: true });
-                        deferred3.resolve('RSVPReceptionAdults');
-
-                        return deferred3.promise;
-                    }
-
                     else{
 
                         cmd = cmd.toLowerCase() === 'yes' ? '1' : '0';
@@ -109,7 +110,7 @@
                         return http(req).then(
                             function (data) {
 
-                                var rsvpResponse = rsvpAjaxHandler(data);
+                                var rsvpResponse = rsvpAjaxHandler(data, cmd);
 
                                 var deferred = q.defer();
                                 // success callback

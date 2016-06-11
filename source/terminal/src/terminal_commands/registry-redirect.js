@@ -9,7 +9,7 @@
 
                 RegistyRedirectCommandHandler.command = 'RegistyRedirect';
                 RegistyRedirectCommandHandler.description = ['Opens a new tab for the website registry'];
-                RegistyRedirectCommandHandler.parentCommand = ['RegistyRedirect', 'Registry'];
+                RegistyRedirectCommandHandler.parentCommand = ['RegistyRedirect', 'Registry', 'RSVPComment'];
 
                 RegistyRedirectCommandHandler.handle = function (session, cmd, scope) {
                     var outText = [];
@@ -65,7 +65,7 @@
                         
                         outText.push('Please enter either yes or no.');
                         session.output.push({ output: true, text: outText, breakLine: true });
-                        deferred4.resolve('RegistryRedirect');
+                        deferred4.resolve('RegistyRedirect');
 
                         return deferred4.promise;
                     }

@@ -38,7 +38,7 @@
                             rsvpResponse =
                                 {
                                     'childHandler' : 'RSVPComment',
-                                    'outText' : '\n  You have completed the RSVP process.\n\n  Thank You.  \n\n  Is there anything you would like to ask us?'
+                                    'outText' : '\n  You have completed the RSVP process.\n\n  Thank You.  \n\n  Please leave a comment, or type in "end" and press enter.'
                                 };
                         }
                         else{

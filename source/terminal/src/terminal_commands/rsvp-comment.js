@@ -33,8 +33,10 @@
                         if(response.data['status'] === "success"){
                             rsvpResponse =
                                 {
-                                    'childHandler' : '',
-                                    'outText' : '\n  Thank you for your comments.'
+                                    'childHandler' : 'RegistyRedirect',
+                                    'outText' : '\n  Thank you for your comments.' +
+                                                '\n\n  If you need to modify your RSVP you can reenter the \"RSVP\" command to make edits.'+
+                                                '\n\n  Would you like to see our Registry now?  (There\'s some photos of us there!)'
                                 };
                         }
                         else{
@@ -71,6 +73,7 @@
                          data: {
                             'email': scope.rsvpEmail,
                             'rsvpComments': cmd,
+                            'rsvpComplete' : '1',
                             'accessToken' : scope.rsvpAccessToken,
                             'ttl': scope.rsvpAccessTokenTTL,
                             'created': scope.rsvpAccessTokenCreated

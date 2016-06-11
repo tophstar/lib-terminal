@@ -36,7 +36,7 @@
                             rsvpResponse =
                                 {
                                     'childHandler' : 'RSVPComplete',
-                                    'outText' : '\n  How many vegiterians are there in your party?'
+                                    'outText' : '\n  How many vegetarians are there in your party?'
                                 };
                         }
                         else{
