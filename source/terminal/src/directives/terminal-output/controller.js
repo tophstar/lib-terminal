@@ -19,75 +19,8 @@
 
 
 
-var leslieAndChristopherText = ['   __           _ _                        _     ___ _          _     _              _                ',
-'  / /  ___  ___| (_) ___    __ _ _ __   __| |   / __\\ |__  _ __(_)___| |_ ___  _ __ | |__   ___ _ __  ',
-' / /  / _ \\/ __| | |/ _ \\  / _` | \'_ \\ / _` |  / /  | \'_ \\| \'__| / __| __/ _ \\| \'_ \\| \'_ \\ / _ \\ \'__| ',
-'/ /__|  __/\\__ \\ | |  __/ | (_| | | | | (_| | / /___| | | | |  | \\__ \\ || (_) | |_) | | | |  __/ |    ',
-'\\____/\\___||___/_|_|\\___|  \\__,_|_| |_|\\__,_| \\____/|_| |_|_|  |_|___/\\__\\___/| .__/|_| |_|\\___|_|    ',
-'                                                                              |_|                     ',
-'                             _   _   _                                         _          _   _       ',
-'  __ _ _ __ ___    __ _  ___| |_| |_(_)_ __   __ _   _ __ ___   __ _ _ __ _ __(_) ___  __| | / \\      ',
-' / _` | \'__/ _ \\  / _` |/ _ \\ __| __| | \'_ \\ / _` | | \'_ ` _ \\ / _` | \'__| \'__| |/ _ \\/ _` |/  /      ',
-'| (_| | | |  __/ | (_| |  __/ |_| |_| | | | | (_| | | | | | | | (_| | |  | |  | |  __/ (_| /\\_/       ',
-' \\__,_|_|  \\___|  \\__, |\\___|\\__|\\__|_|_| |_|\\__, | |_| |_| |_|\\__,_|_|  |_|  |_|\\___|\\__,_\\/         ',
-'                  |___/                      |___/                                                    ',
-'\n\nPlease click the screen to start.',
-'\n\nType in the word "help" (without quotes) to see availible commands'];
-
-
-var asciiStep1 = [
-' ',
-'          @@@',
-'         (( } ',
-'         ``) ',
-'        ``( \\  @@@',
-'       ```\\`.\\_`|/',
-'      ```` )|---~',
-'     ~~~~~/ \\`',
-'         / \' \\`',
-'        /  \'  \\`',
-'       /   \'    `',
-'      /   _!__.-._`',
-'     /_.-\'    ( \\',
-'     /,        ` \\',
-'    |`_         |`_'];
-
-var asciiStep2 = [
-'                                       --.',
-'          @@@                         /  ))',
-'         (( }                         7_ /',
-'         ``)                            / \\',
-'        ``( \\  @@@                     |<| |',
-'       ```\\`.\\_`|/                    /|/| |',
-'      ```` )|---~                    / | | |',
-'     ~~~~~/ \\`                    o_)\\/| |_|',
-'         / \' \\`                        |__>)',
-'        /  \'  \\`                       || |',
-'       /   \'    `                      |\\ \\',
-'      /   _!__.-._`                    | \\ \\',
-'     /_.-\'    ( \\                      | |\\ \\',
-'     /,        ` \\                     |_| \\_\\',
-'    |`_         |`_                  __\'_)__.-\''];
-
-
-var asciiStep3 = [
-'                         --.',
-'          @@@           /  ))',
-'         (( }           7_ /',
-'         ``)             / \\',
-'        ``( \\           |<| |',
-'       ```\\`.\\__     __/|/| |',
-'      ```` )|---~o_)|___| | |',
-'     ~~~~~/ \\`          | |_|',
-'         / \' \\`         |__>)',
-'        /  \'  \\`        || |',
-'       /   \'    `       |\\ \\',
-'      /   _!__.-._`     | \\ \\',
-'     /_.-\'  ( |         | |\\ \\',
-'        /    `|         |_| \\_\\',
-'       |`_   |`_      __\'_)__.-\''];
-
-
+var mainText = ['\nPlease click the screen to start.',
+		'\n\nType in the word "help" (without quotes) to see availible commands'];
 
 				var asciiAnimation1 = function () {
 
@@ -96,53 +29,10 @@ var asciiStep3 = [
 					setTimeout(function (){
 						deferred.resolve(
 						{
-							'outText' : asciiStep1
+							'outText' : mainText
 						});
 					}, 1);
 
-
-					return deferred.promise;
-				};
-
-
-				var asciiAnimation2 = function () {
-
-					var deferred = $q.defer();
-
-					setTimeout(function () {
-                    deferred.resolve(
-					{
-						'outText' : asciiStep2
-					});
-					}, 1);
-
-					return deferred.promise;
-				};
-
-				var asciiAnimation3 = function () {
-
-					var deferred = $q.defer();
-
-					setTimeout(function () {
-                    deferred.resolve(
-					{
-						'outText' : asciiStep3
-					});
-					}, 1);
-
-					return deferred.promise;
-				};
-
-				var asciiAnimation4 = function () {
-
-					var deferred = $q.defer();
-
-					setTimeout(function () {
-                    deferred.resolve(
-					{
-						'outText' : leslieAndChristopherText
-					});
-					}, 1);
 
 					return deferred.promise;
 				};
@@ -176,40 +66,6 @@ var asciiStep3 = [
 				};
 
 			asciiAnimation1().then(function(data){
-					$scope.$broadcast('terminal-output', {
-						output: true,
-						text:data.outText,
-						breakLine: true
-					});
-
-					$scope.safeApply();
-
-					return clearAnimation();
-				}).then(function(){
-					return asciiAnimation2();
-				}).then(function(data){
-					$scope.$broadcast('terminal-output', {
-						output: true,
-						text:data.outText,
-						breakLine: true
-					});
-
-					$scope.safeApply();
-					return clearAnimation();
-				}).then(function(){
-					return asciiAnimation3();
-				}).then(function(data){
-					$scope.$broadcast('terminal-output', {
-						output: true,
-						text:data.outText,
-						breakLine: true
-					});
-
-					$scope.safeApply();
-					return clearAnimation();
-				}).then(function(){
-					return asciiAnimation4();
-				}).then(function(data){
 					$scope.$broadcast('terminal-output', {
 						output: true,
 						text:data.outText,
