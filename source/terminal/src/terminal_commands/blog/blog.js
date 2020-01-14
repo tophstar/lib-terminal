@@ -20,5 +20,5 @@
                 $commandBrokerProvider.appendCommandHandler(LocationCommandHandler);
             }]);
         };
-    })
+    });
 }(window));
