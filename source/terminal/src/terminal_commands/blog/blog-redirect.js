@@ -8,8 +8,8 @@
                 var RegistyRedirectCommandHandler = {};
 
                 RegistyRedirectCommandHandler.command = 'RegistyRedirect';
-                RegistyRedirectCommandHandler.description = ['Opens a new tab for the website registry'];
-                RegistyRedirectCommandHandler.parentCommand = ['RegistyRedirect', 'Registry', 'RSVPComment'];
+                RegistyRedirectCommandHandler.description = ['Opens a new tab for to my blog.'];
+                RegistyRedirectCommandHandler.parentCommand = ['BlogRedirect', 'Blog'];
 
                 RegistyRedirectCommandHandler.handle = function (session, cmd, scope) {
                     var outText = [];
@@ -28,10 +28,10 @@
                         if(isSuccessful === "yes"){
                             deferred.resolve({
                                 'childHandler' : '',
-                                'outText' : "Ya all come back and RSVP if you haven't already."
+                                'outText' : "Ya all come back now ya hear?"
                             });
 
-                            $window.open('https://www.wanderable.com/hm/leslieandchristopher', '_blank');
+                            $window.open('http://www.tophstar.com/wordsofadev', '_blank');
                         }
                         else{
                             deferred.resolve({
@@ -45,9 +45,9 @@
 
                     if(cmd === 'help'){
                         var deferred1 = q.defer();
-                        outText.push("Please enter the RSVP code found on your wedding invitation.");
+                        outText.push("Answer yes or no please.");
                         session.output.push({ output: true, text: outText, breakLine: true });
-                        deferred1.resolve('RegistyRedirect');
+                        deferred1.resolve('BlogRedirect');
 
                         return deferred1.promise;
                     }
@@ -65,7 +65,7 @@
                         
                         outText.push('Please enter either yes or no.');
                         session.output.push({ output: true, text: outText, breakLine: true });
-                        deferred4.resolve('RegistyRedirect');
+                        deferred4.resolve('BlogRedirect');
 
                         return deferred4.promise;
                     }

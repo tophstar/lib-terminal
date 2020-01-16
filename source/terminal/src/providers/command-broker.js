@@ -2,175 +2,104 @@
     var CommandBroker = function () {
         var me = {};
         me.handlers = [];
-        me.redirectors = [];
         me.childHandlers = [];
         me.childHandlersStack = [];
         var angular = CommandBroker.angular;
 
-        var selectByRedirectors = function (commandParts) {
+        var gatherCommandParts = function (commandParts) {
             var result = [], r=[];
             for (var i = 0; i < commandParts.length; i++) {
                 var cp = commandParts[i];
-                var suitableRedirectors;
-                //@todo fix this to not use jslint ignore.
-                /*jshint ignore:start*/
-                suitableRedirectors = me.redirectors.filter(function (r) { return r.command === cp; });
-                /*jshint ignore:end*/
-                if (suitableRedirectors.length) {
-                    result.push(r);
-                    result.push(cp);
-                    r = [];
-                }
-                else
-                {
-                    r.push(cp);
-                }
-            }
-            if (r.length){
-                result.push(r);
-            }
+                r.push(cp);
+             }
+            result.push(r);
 
             return result;
         };
-
         me.$get = ['$injector', '$commandLineSplitter', function ($injector, $commandLineSplitter) {
             return {
                 execute: function (session, consoleInput, scope) {
+                    try{
 
-                    var childCommand;
-
+                    // NO-OP, no command was given
                     if (!consoleInput){
                         return;
                     }
 
-
+                    // Get the command and any arguments passed in with that command into one element
+                    // var fullCommandParts = gatherCommandParts($commandLineSplitter.split(consoleInput));
                     var fullCommandParts = $commandLineSplitter.split(consoleInput);
-
-                    var stackedParts = selectByRedirectors(fullCommandParts);
 
                     var tempSession = {
                         commands: [],
                         output: []
                     };
 
-                    var redirector = null;
+                        var handlerArgs = [];
+                        var suitableHandlers= [];
 
-                    for (var i = 0; i < stackedParts.length; i++) {
-                        var p = stackedParts[i];
-                        var suitableRedirectors;
-                        var suitableHandlers;
-
-                        if (redirector) {
-                            p.splice(0, 0, tempSession);
-                            redirector.handle.apply(redirector, p);
-                            redirector = null;
-                            continue;
-                        }
-                        //@todo fix this to not use jslint ignore.
-                        /*jshint ignore:start*/
-                        suitableRedirectors = me.redirectors.filter(function (r) { return r.command === p; });
-                        /*jshint ignore:end*/
-                        if (suitableRedirectors.length) {
-
-                            redirector = suitableRedirectors[0];
-                            tempSession = {
-                                commands: [],
-                                output: [],
-                                input: tempSession.output
-                            };
-                        }
-                        else {
-
-
-
-
-
-                            //@TODO Right here handle a command that was stacked
+                            // Deal with stacked commands
                             if(me.childHandlersStack.length) {
-                                
                                 suitableHandlers = me.childHandlersStack.pop();
                             }
                             else{
-                                //@todo fix this to not use jslint ignore.
-                                /*jshint ignore:start*/
                                 suitableHandlers = me.handlers.filter(function (item) {
-                                    return p.length && item.command.toLowerCase() === p[0].toLowerCase();
+                                    return fullCommandParts[0].length && item.command.toLowerCase() === fullCommandParts[0].toLowerCase();
                                 });
-                                /*jshint ignore:end*/
                             }
 
                             if (suitableHandlers.length === 0){
                                 throw new Error("I can't let you do that.  If you need help type in \"help\".");
                             }
 
+                            handlerArgs[0] = tempSession;
+                            handlerArgs[1] = fullCommandParts[0];
+                            handlerArgs[2] = scope;
+                            // command line arguments not yet supported
+                            handlerArgs[3] = fullCommandParts.splice(1);
 
-
-
-
-
-
-
-
-                            var h = suitableHandlers[0];
-
-                            var tempCmd = p[0];
-                            p[0] = tempSession;
-                            //This was p[0], but this was filtering out multipart answers such as first and last name or comments
-                            p[1] = consoleInput;
-                            p[2] = scope;
-
-
-
-
-                            //Otherwise stack a child 
-                            //@todo fix this to not use jslint ignore.
-                            /*jshint ignore:start*/
-                            var temp = me.childHandlers.filter(function (item) {
-                                return p.length 
-                                    && item.parentCommand.filter(function (cm) {
-                                        return cm.toLowerCase() === p[1].toLowerCase();
-                                    }).length > 0;
-                            });
-                            /*jshint ignore:end*/
-
-
-
-//@TODO this is now an asyn process as childcommand will not sometimes not return until an ajax call has completed.
 
                             //This is where the command "handle(session, cmd)" is called.
-                            childCommand =  h.handle.apply(h, p);
+                            var asyncCommand =  suitableHandlers[0].handle.apply(suitableHandlers, handlerArgs);
 
-                            /*jshint ignore:start*/
-                            if(childCommand){
-                                childCommand.then(function (data) {
-                                    //for testing setTimeout(function () {
-//                                        console.log("got here after everything");
-                                        scope.$broadcast('terminal-wait', false);
-                                        temp = me.childHandlers.filter(function (item) {
-                                            return item.command.toLowerCase() === data.toLowerCase();
-                                        });
+                            if(asyncCommand){
+                                // this is now an async process as child command will sometimes not
+                                // execute until an ajax call has completed.
+                                asyncCommand.then(function (data) {
+                                    scope.$broadcast('terminal-wait', false);
+                                    var childHandler = me.childHandlers.filter(function (item) {
+                                        return item.command.toLowerCase() === data.toLowerCase();
+                                    });
 
-                                        if(temp.length){
-                                            me.childHandlersStack.push(temp);
-                                        }
+                                    if(childHandler.length){
+                                        me.childHandlersStack.push(childHandler);
+                                    }
 
-                                        angular.extend(session, tempSession);
+                                    angular.extend(session, tempSession);
 
-                                        scope.safeApply();
-                                    //}, 5000);
+                                    scope.safeApply();
                                 });
                             }
                             else
                             {
-                                if(temp.length){
-                                    me.childHandlersStack.push(temp);
+
+                                // Search for a child handler.  This may only work if the
+                                // "parent command" has only one possible child.
+                                var childHandler = me.childHandlers.filter(function (item) {
+                                    return handlerArgs.length && item.parentCommand.filter(function (cm) {
+                                            return cm.toLowerCase() === handlerArgs[1].toLowerCase();
+                                        }).length > 0;
+                                });
+
+                                if(childHandler.length){
+                                    me.childHandlersStack.push(childHandler);
                                 }
 
                                 angular.extend(session, tempSession);
                             }
-                            /*jshint ignore:end*/
+                        } catch (e) {
+                            throw new Error('I have broken.');
                         }
-                    }
                 },
 
                 init: function () { // inject dependencies on commands
@@ -184,9 +113,6 @@
                     for (var i = 0; i < me.handlers.length; i++) {
                         inject(me.handlers[i]);
 
-                    }
-                    for (var j = 0; j < me.redirectors.length; j++) {
-                        inject(me.redirectors[i]);
                     }
                 }
             };
@@ -206,22 +132,6 @@
             }
 
             me.handlers.push(handler);
-        };
-
-        me.appendRedirectorHandler = function (handler) {
-            if (!handler || !handler.command || !handler.handle){
-                throw new Error("Invalid redirect handler");
-            }
-
-            var suitableHandlers = me.redirectors.filter(function (item) {
-                return item.command === handler.command;
-            });
-
-            if (suitableHandlers.length !== 0){
-                throw new Error("There is already a handler for that redirection.");
-            }
-
-            me.redirectors.push(handler);
         };
 
         me.describe = function () {
