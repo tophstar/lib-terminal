@@ -7,15 +7,15 @@
   };
 
   define([
+    "./terminal_commands/blog/blog.js",
+    "./terminal_commands/blog/blog-redirect.js",
     "./terminal_commands/clear.js",
     "./terminal_commands/help.js",
-    "./terminal_commands/location.js",
-    "./terminal_commands/registry-redirect.js",
-    "./terminal_commands/registry.js",
-    "./terminal_commands/rsvp-auth-failed.js",
-    "./terminal_commands/rsvp-auth.js",
-    "./terminal_commands/rsvp-complete.js",
-    "./terminal_commands/rsvp.js"
+    "./terminal_commands/message-me/message-me-done.js",
+    "./terminal_commands/message-me/message-me-message.js",
+    "./terminal_commands/message-me/message-me-name.js",
+    "./terminal_commands/message-me/message-me-subject.js",
+    "./terminal_commands/message-me/message-me.js",
   ], function (
     clear,
     help,

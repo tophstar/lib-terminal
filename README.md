@@ -30,9 +30,11 @@ ng-terminal is a library that emulates a command terminal in Javascript.  After 
 
 In your terminal:
 
-git clone https://github.com/tophstar/lib-ng-terminal.git\n
-npm install\n
-grunt\n
+````
+git clone https://github.com/tophstar/lib-ng-terminal.git
+npm install
+grunt (or npx grunt)
+````
 
 ### Adding Commands
 

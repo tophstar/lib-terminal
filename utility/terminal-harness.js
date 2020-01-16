@@ -14,7 +14,7 @@ var terminalHarness = (function () {
             require.config({
                 baseUrl: '',
                 paths: {
-                    "terminal": "scripts/terminal.js?cachebust=" + (new Date()).getTime()
+                    "terminal": "build/terminal.js?cachebust=" + (new Date()).getTime()
                 }
             });
 
